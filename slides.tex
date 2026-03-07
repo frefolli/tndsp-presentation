@@ -148,7 +148,7 @@
  
   \begin{alertblock}{Rules}
     \begin{itemize}
-      \item A solution is a set of unique Service Lines (w.r.t. symmetrical equality) forming a connected component covering the entire input network.
+      \item A solution is a set of unique Service Lines forming a connected component covering the entire input network.
       \item A route is a path (of min length = $3$) from a node \textit{A} to a node \textit{B} without repetitions of nodes.
       \item Each bus has 40 seats and cannot hold more than 50 passengers.
     \end{itemize}
@@ -169,7 +169,7 @@
   \begin{block}{Definition}
     \begin{itemize}
       \item The Route DB is a collection of paths.
-      \item Each path is contained exaclty once (w.r.t. symmetrical equality) and has an associated ID.
+      \item Each path is contained exaclty once and has an associated ID.
       \item The Route DB is indexed so that it is possible to retrieve in $O(1)$ all the paths starting with node $v$, ending with node $w$ or containing the edge $(v, w)$
     \end{itemize}
   \end{block}
@@ -229,19 +229,32 @@
     \begin{itemize}
       \item Each node of the graph must be served and the individual shall form a connected component
       \item Each route shall contain at most one occurence of a node
-      \item Each individual shall contain at most one occurrence of each row (w.r.t. symmetrical equality)
+      \item Each individual shall contain at most one occurrence of each row
     \end{itemize}
   \end{alertblock}
 
   \begin{exampleblock}{Example of Individual}
     \label{example:individual}
-    \begin{itemize}
-      \item \textbf{$R_{0}$}: S1-S2-S4-S12
-      \item \textbf{$R_{1}$}: S2-S3-S6-S15-S9
-      \item \textbf{$R_{2}$}: S5-S4-S6-S15-S7-S10-S13
-      \item \textbf{$R_{3}$}: S8-S15-S9
-      \item \textbf{$R_{4}$}: S11-S13-S14
-    \end{itemize}
+    \begin{columns}
+      \begin{column}{0.5\textwidth}
+        \begin{itemize}
+          \item  \textbf{$R_{1}$} : 1-2-3-6-8-10-11-13
+          \item  \textbf{$R_{2}$} : 9-15-7-10-11-12
+          \item  \textbf{$R_{3}$} : 7-15-8-6-3-2-4-5
+          \item  \textbf{$R_{4}$} : 2-4-6-8-10-11-13-14
+          \item  \textbf{$R_{5}$} : 13-14-10-8-6-3-2-4
+        \end{itemize}
+      \end{column}
+      \begin{column}{0.5\textwidth}
+        \begin{itemize}
+          \item  \textbf{$R_{6}$} : 1-2-5-4-12
+          \item  \textbf{$R_{7}$} : 11-10-7-15-6-3-2-1
+          \item  \textbf{$R_{8}$} : 5-4-6-8-10-11
+          \item  \textbf{$R_{9}$} : 13-11-12-4-5-2-1
+          \item \textbf{$R_{10}$} : 9-15-8-6-3-2-4-12
+        \end{itemize}
+      \end{column}
+    \end{columns}
   \end{exampleblock}
 \end{frame}
 
@@ -316,29 +329,56 @@
   \begin{exampleblock}{Example of Frequency Setting and Individual Evaluation (see \ref{example:individual})}
     \label{example:fs-ie}
     \begin{columns}
-      \begin{column}{0.5\textwidth}
-        \begin{itemize}
-          \item \textbf{$R_{0}$}: S1-S2-S4-S12
-          \item \textbf{$R_{1}$}: S2-S3-S6-S15-S9
-          \item \textbf{$R_{2}$}: S5-S4-S6-S15-S7-S10-S13
-          \item \textbf{$R_{3}$}: S8-S15-S9
-          \item \textbf{$R_{4}$}: S11-S13-S14
-        \end{itemize}
+      \hspace{0.25cm}
+      \begin{column}{0.3\textwidth}
+        \begin{tabular}{|l|c|c|c|}
+          \hline
+          Route & $Q_{max}$ & $f$ & $ht$ \\
+          \hline
+          \textbf{$R_{1}$} & 519.1 & 10.51 & 5.71 \\
+          \hline
+          \textbf{$R_{2}$} & 392.02 & 8.42 & 7.12 \\
+          \hline
+          \textbf{$R_{3}$} & 279.65 & 6.78 & 8.85 \\
+          \hline
+          \textbf{$R_{4}$} & 441.57 & 9.4 & 6.38 \\
+          \hline
+          \textbf{$R_{5}$} & 392.32 & 9.0 & 6.66 \\
+          \hline
+          \textbf{$R_{6}$} & 124.08 & 3.72 & 16.12 \\
+          \hline
+          \textbf{$R_{7}$} & 710.97 & 13.0 & 4.62 \\
+          \hline
+          \textbf{$R_{8}$} & 599.38 & 11.9 & 5.04 \\
+          \hline
+          \textbf{$R_{9}$} & 157.14 & 4.27 & 14.05 \\
+          \hline
+          \textbf{$R_{10}$} & 142.6 & 4.34 & 13.82 \\
+          \hline
+        \end{tabular}
       \end{column}
-      \begin{column}{0.2\textwidth}
-        \begin{itemize}
-          \item \textbf{$f_{0}$}: 1.25
-          \item \textbf{$f_{1}$}: 2.83
-          \item \textbf{$f_{2}$}: 1.17
-          \item \textbf{$f_{3}$}: 3.38
-          \item \textbf{$f_{4}$}: 7.11
-        \end{itemize}
+      \begin{column}{0.1\textwidth}
       \end{column}
-      \begin{column}{0.2\textwidth}
-        \begin{itemize}
-          \item \textbf{$F_{1}$}: 1004.4
-          \item \textbf{$F_{2}$}: 1762.2
-        \end{itemize}
+      \begin{column}{0.3\textwidth}
+        \begin{tabular}{|l|c|}
+          \hline
+          Param & Value \\
+          \hline
+          \textbf{$C_{wt}$} & 2.0 \\
+          \hline
+          \textbf{$C_{1t}$} & 30 \\
+          \hline
+          \textbf{$C_{2t}$} & 40 \\
+          \hline
+          \textbf{$f_{max}$} & 13 \\
+          \hline
+          \textbf{$f_{min}$} & 1 \\
+          \hline
+          \textbf{$F_{1}$} & 519.1 \\
+          \hline
+          \textbf{$F_{2}$} & 392.02 \\
+          \hline
+        \end{tabular}
       \end{column}
     \end{columns}
   \end{exampleblock}
