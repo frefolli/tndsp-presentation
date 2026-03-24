@@ -113,35 +113,47 @@
 
   \begin{figure}
     \centering
-    \includegraphics[width=0.3\textwidth]{figures/example-output-lines.png}
+    \includegraphics[width=0.5\textwidth]{figures/example-output-lines-2.png}
     \caption{Example of OUTPUT Lines}
   \end{figure}
 \end{frame}
 
-%% TODO: Rewrite this slide to only explain the components without using a formula
 \begin{frame}
   \frametitle{Problem statement / 3}
- 
-  \begin{block}{Objective Functions}
-    \begin{equation}
-      \label{eq:F1-F2}
-      \begin{array}{l}
-        min \; F_1 = C_{wt} \times TWT + TIVIT + \Sigma _ {\alpha = 1} ^ {2} C_{\alpha t} \times T\alpha T + C_{ud} \times UD \\
-        min \; F_2 = \Sigma _ {s \in S} VN_{s}
-      \end{array}
-    \end{equation}
+  \begin{block}{User Cost / Total for every Origin-Destination pair of:}
+    \label{tbl:user-cost-comps-and-why}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|l|c|}
+      \hline
+      What & Why \\
+      \hline
+      Average waiting time for vehicles    & passengers waiting \\
+      \hline
+      Average in-vehicle travel time       & passengers traveling \\
+      \hline
+      Average number of one-transfer trips & passengers changing vehicle 1 time \\
+      \hline
+      Average number of two-transfer trips & passengers changing vehicle 2 times \\
+      \hline
+      Unsatisfied demand                   & passengers overcrowded \\
+      \hline
+    \end{tabular}
+    }
   \end{block}
- 
-  \begin{itemize}
-    \item $TWT$ total waiting time for all passengers
-    \item $C_{wt}$ waiting time weight
-    \item $TIVTT$ total in-vehicle travel time for all passengers
-    \item $T\alpha T$ total number of \textit{$\alpha$-th} transfers required by all passengers
-    \item $C_{\alpha t}$ \textit{$\alpha$-th} transfer penalty
-    \item $UD$ unsatisfied demand
-    \item $C_{ud}$ penalty for unsatisfied demand
-    \item $VC_{s}$ fleet size of one service line
-  \end{itemize}
+  \begin{block}{Company Cost / Total for every Route of:}
+    \label{tbl:company-cost-comps-and-why}
+    %\resizebox{\textwidth}{!}{
+    \begin{center}
+    \begin{tabular}{|c|c|}
+      \hline
+      What & Why \\
+      \hline
+      Fleet size    & maintenance and order \\
+      \hline
+    \end{tabular}
+    \end{center}
+    %}
+  \end{block}
 \end{frame}
 
 \begin{frame}
@@ -151,9 +163,25 @@
     \begin{itemize}
       \item A solution is a set of unique Service Lines forming a connected component covering the entire input network.
       \item A route is a path (of min length = $3$) from a node \textit{A} to a node \textit{B} without repetitions of nodes.
-      \item Each bus has 40 seats and cannot hold more than 50 passengers.
     \end{itemize}
   \end{alertblock}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{figures/example-valid-solution.png}
+        \caption{Valid Solution}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{figures/example-invalid-solution.png}
+        \caption{Invalid Solution}
+      \end{figure}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}
@@ -166,49 +194,21 @@
 
 %% TODO: Summarize in one Slide Removing the formulas and leaving only the process
 \begin{frame}
-  \frametitle{Route Database Creation / 1}
+  \frametitle{Route Database}
 
   \begin{block}{Definition}
     \begin{itemize}
-      \item The Route DB is a collection of paths.
-      \item Each path is contained exaclty once and has an associated ID.
+      \item The Route DB is a collection of unique paths (each one with an ID).
       \item The Route DB is indexed so that it is possible to retrieve in $O(1)$ all the paths starting with node $v$, ending with node $w$ or containing the edge $(v, w)$
     \end{itemize}
   \end{block}
-\end{frame}
 
-\begin{frame}
-  \frametitle{Route Database Creation / 2}
-  \begin{block}{Route DB Construction}
+  \begin{block}{Construction}
     \begin{itemize}
-      \item For each pair of nodes $(v, w) \in V \times V$ such that $OD[v, w] \neq 0$, add the \textit{k-shortest-paths} from $v$ to $w$.
-      \item $k$ is not fixed but is expressed as \textit{detour ratio} $R \in (0,1)$.
-      \item Calling $C_p$ the cost of the path $p$ and $C_{o}$ the minimal cost of a shortest path, it selects all paths $p$ such that $\frac {C_p - C_o} {C_o} \leq R$.
-      \item The \textit{k-shortest-paths} for a pair $v, w$ are obtained using the \textbf{Yen} Algorithm, which in turn uses the \textbf{Dijkstra} algorithm on increasingly modified versions of the adjacency matrix of the graph.
+      \item For each pair of nodes $(v, w) \in V \times V$ such that $OD[v, w] \neq 0$, add the \textit{k-shortest-paths} from $v$ to $w$ (using a \textit{detour ratio} for deriving $k$).
+      \item Obtained using the \textbf{Yen} Algorithm, which in turn uses the \textbf{Dijkstra} algorithm on increasingly modified versions of the adjacency matrix of the graph.
     \end{itemize}
   \end{block}
-\end{frame}
-
-%% Maybe remove time complexity and say it aloud at presentation time
-\begin{frame}
-  \frametitle{Route Database Creation / 3}
-  \begin{alertblock}{Construction Time Complexity}
-    \begin{itemize}
-      \item The Dijkstra Algorithm is $O(|E|+|V|log|V|)$
-      \item The Yen Algorithm calls Dijkstra $k|V|$ times
-      \item Assuming verifying path membership is $O(1)$.
-      \item Assuming adding a path to the DB is $O(1)$.
-      \item Constructing Route DB is $O(k|V|^3(|E|+|V|log|V|))$
-    \end{itemize}
-  \end{alertblock}
-
-  \begin{alertblock}{Construction Space Complexity}
-    \begin{itemize}
-      \item The Dijkstra Algorithm is $\Theta(|V|)$
-      \item The Yen Algorithm produces $k$ paths with $\Theta(k|V|)$ space
-      \item Constructing Route DB is $O(k|V|^3)$
-    \end{itemize}
-  \end{alertblock}
 \end{frame}
 
 \begin{frame}
@@ -231,8 +231,6 @@
   \begin{alertblock}{Individual's Feasibility Criteria}
     \begin{itemize}
       \item Each node of the graph must be served and the individual shall form a connected component
-      \item Each route shall contain at most one occurence of a node
-      \item Each individual shall contain at most one occurrence of each row
     \end{itemize}
   \end{alertblock}
 
@@ -261,130 +259,63 @@
   \end{exampleblock}
 \end{frame}
 
-%% TODO: Summarize in other slides and/or remove
 \begin{frame}
-  \frametitle{Population Initialization / 3}
-  \begin{block}{Individual's Fate}
-    \begin{itemize}
-      \item Each individual does not contain the routes as values but their ID inside the Route DB
-      \item Each crossover operation creates a new entry for the Route DB
-      \item A crossover operation could invalidate the individual (\textit{unfeasible})
-      \item An individual which is not \textit{feasible} is replaced by a freshly generated one
-      \item The individual is assigned with served demand and trip frequencies
-      \item The individual is evaluated with respect to User Cost ($F_1$) and Operator Cost ($F_2$)
-    \end{itemize}
-  \end{block}
-\end{frame}
-
-%% TODO: Summarize the concept without using formulas
-\begin{frame}
-  \frametitle{Demand Assignment and Frequency Setting / 1}
-
-  For each pair $v, w$ such that $OD[v, w] \neq 0$, compute the probabilities $P_{j}$ of a user wanting to travel from $v$ to $w$ using the combination of routes $j$.
-  Those probabilities can be aggregated on route-level to compute the peak load of the route $Q^{max}_{r}$, and then the frequency $f_r$.
-  
-  \begin{block}{Probabilities for One/Two Transfer Paths}
-    \begin{equation}
-      \label{eq:POTTP}
-      P_{j} = \frac {e^{-U_j}} {\Sigma _ {i \in Options} e ^ {-U_i}}
-    \end{equation}
-    \begin{equation}
-      \label{eq:UOTTP}
-      U_i = T_w \cdot C_{wt} + T_{iv} + \Sigma _ {\alpha = 1} ^ {2} X_{\alpha t} \times C_{\alpha t}
-    \end{equation}
-  \end{block}
-  
-  \begin{block}{Probabilities for Direct Paths}
-    \begin{equation}
-      \label{eq:PDP}
-      P_{j} = \frac {f_j} {\Sigma _ {i \in Options} f_j}
-    \end{equation}
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Demand Assignment and Frequency Setting / 2}
-
-  \begin{block}{Frequency-based Bound}
-    \begin{equation}
-      \label{eq:FR}
-      f_r = \frac {Q^{max}_{r}} {LF_r \cdot CAP} \leq f_{r_{max}}
-    \end{equation}
-  \end{block}
+  \frametitle{Demand Assignment and Frequency Setting}
 
   \begin{itemize}
-    \item The frequencies of routes can also be computed by rewriting the equation \textit{(\ref{eq:FR})} into \textit{(\ref{eq:NFR})}.
-    \item Thus, all frequencies become parameters (initially set to 1) and incremented iteratively until all coefficients $LF_r$ become $\leq LF_{max}$ \\ (set to 1.25 by authors).
+    \item For each pair $v, w$ such that $OD[v, w] \neq 0$, compute the probabilities $P_{j}$ of a user wanting to travel from $v$ to $w$ using the combination of routes $j$.
+    \item Those probabilities can be aggregated on route-level with demand from OD Matrix to compute the peak load of the route $Q^{max}_{r}$, and then the frequency $f_r$.
+    \item NB: This becomes a subordinate optimization problem, which is solved by in/decrementing frequencies, recomputing peak load and re-updating frequencies, and so on, until convergence or with a iteration bound
     \item NB: Realistically, frequency shall relate to an integer number of trips during the hour/day period.
   \end{itemize}
-  
-  \begin{block}{Load-Factor-based Bound}
-    \begin{equation}
-      \label{eq:NFR}
-      LF_r = \frac {Q^{max}_{r}} {CAP \cdot f_r} \leq LF_{max}
-    \end{equation}
-  \end{block}
 \end{frame}
 
-%% TODO: Simplify the slide to show only the essentials
 \begin{frame}
-  \frametitle{Solutions Evaluation}
-    At this point the individual is a set of defined routes + the allocated frequencies (thus the fleet size).
-    This is enough to compute the objective functions $F_1$ and $F_2$ on the individual using equations \ref{eq:F1-F2}.
-
+  \frametitle{Solution Evaluation}
   \begin{exampleblock}{Example of Frequency Setting and Individual Evaluation (see \ref{example:individual})}
     \label{example:fs-ie}
     \begin{columns}
-      \hspace{0.25cm}
-      \begin{column}{0.3\textwidth}
-        \begin{tabular}{|l|c|c|c|c|}
+      \begin{column}{0.5\textwidth}
+        \resizebox{\textwidth}{!}{
+        \begin{tabular}{|l|c|c|}
           \hline
-          Route & $Q_{max}$ & $f$ & $ht$ & $fl$ \\
+          Route & Trip / Hour & Flee Size \\
           \hline
-          \textbf{$R_{1}$} & 519.1 & 10.51 & 5.71 & 12 \\
+          \textbf{$R_{1}$}  & 10.51 & 12 \\
           \hline
-          \textbf{$R_{2}$} & 392.02 & 8.42 & 7.12 & 9 \\
+          \textbf{$R_{2}$}  & 8.42  & 9 \\
           \hline
-          \textbf{$R_{3}$} & 279.65 & 6.78 & 8.85 & 4 \\
+          \textbf{$R_{3}$}  & 6.78  & 4 \\
           \hline
-          \textbf{$R_{4}$} & 441.57 & 9.4 & 6.38 & 9 \\
+          \textbf{$R_{4}$}  & 9.4   & 9 \\
           \hline
-          \textbf{$R_{5}$} & 392.32 & 9.0 & 6.66 & 8 \\
+          \textbf{$R_{5}$}  & 9.0   & 8 \\
           \hline
-          \textbf{$R_{6}$} & 124.08 & 3.72 & 16.12 & 3 \\
+          \textbf{$R_{6}$}  & 3.72  & 3 \\
           \hline
-          \textbf{$R_{7}$} & 710.97 & 13.0 & 4.62 & 13 \\
+          \textbf{$R_{7}$}  & 13.0  & 13 \\
           \hline
-          \textbf{$R_{8}$} & 599.38 & 11.9 & 5.04 & 9 \\
+          \textbf{$R_{8}$}  & 11.9  & 9 \\
           \hline
-          \textbf{$R_{9}$} & 157.14 & 4.27 & 14.05 & 6 \\
+          \textbf{$R_{9}$}  & 4.27  & 6 \\
           \hline
-          \textbf{$R_{10}$} & 142.6 & 4.34 & 13.82 & 4 \\
+          \textbf{$R_{10}$} & 4.34  & 4 \\
           \hline
         \end{tabular}
+      }
       \end{column}
-      \begin{column}{0.1\textwidth}
-      \end{column}
-      \begin{column}{0.3\textwidth}
+      \begin{column}{0.5\textwidth}
+        \resizebox{\textwidth}{!}{
         \begin{tabular}{|l|c|}
           \hline
-          Param & Value \\
+          Objective Function & Value \\
           \hline
-          \textbf{$C_{wt}$} & 2.0 \\
+          \textbf{User Cost} & 458152 \\
           \hline
-          \textbf{$C_{1t}$} & 30 \\
-          \hline
-          \textbf{$C_{2t}$} & 40 \\
-          \hline
-          \textbf{$f_{max}$} & 13 \\
-          \hline
-          \textbf{$f_{min}$} & 1 \\
-          \hline
-          \textbf{$F_{1}$} & 458152 \\
-          \hline
-          \textbf{$F_{2}$} & 77 \\
+          \textbf{Company Cost} & 77 \\
           \hline
         \end{tabular}
+      }
       \end{column}
     \end{columns}
   \end{exampleblock}
@@ -395,6 +326,9 @@
   \begin{itemize}
     \item The population is sorted by one of the two objective functions ($F_1$ and $F_2$), alternatively
     \item If in iteration $t$ it was sorted with $F_1$, in iteration $t+1$ it is sorted with $F_2$
+      \begin{center}
+        ... $\Rightarrow$ User Cost $\Rightarrow$ Company Cost $\Rightarrow$ User Cost $\Rightarrow$ ...
+      \end{center}
     \item The top $k$ individuals out of the sorted population are selected for breeding, the rest is discarded
   \end{itemize}
 \end{frame}
@@ -402,7 +336,6 @@
 \begin{frame}
   \frametitle{Crossover Operator}
   \begin{itemize}
-    \item Individuals are selected for crossover with linear ranking
     \item A single point of crossover $k$ is selected randomly
     \item Offsprings are created by exchanging their \textit{k-th} route
     \item Satisfability of offspring is checked and in case of damage, a new crossover point $k'$ is selected
@@ -424,10 +357,19 @@
   \frametitle{Clone Elimination, Stagnation Test and Population Reset}
   \begin{itemize}
     \item If two individuals are (symmetrically) equal, one is discarded and replaced by a newly generated one
-    \item (Test) Whenever the lowest fleet and user cost is the same after more than 200 generations ...
+    \item (Test) Whenever the lowest fleet and user cost is not enhanced significantly after more than 200 generations ...
     \item (Reset) ... the entire population is renewed using the initial population procedure
     \item The best \textit{k-th} individuals (regardless if they are offsprings or parents) are pushed to the next generation (\textit{elitism})
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Balance of Terror}
+  \begin{exampleblock}{Advantages}
+  \end{exampleblock}
+
+  \begin{alertblock}{Problems}
+  \end{alertblock}
 \end{frame}
 
 %% TODO: Add a slide with the problems of this approach and its benefits
@@ -436,7 +378,8 @@
 \begin{frame}
   \begin{figure}
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/thankyou.png}
+    \includegraphics[width=0.9\textwidth]{figures/example-output-lines-2.png}
+    %% \includegraphics[width=0.9\textwidth]{figures/thankyou.png}
   \end{figure}
 \centering
 \Huge
